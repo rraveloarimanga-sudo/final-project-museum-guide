@@ -1,0 +1,29 @@
+{
+  "n_artworks": 1500,
+  "target": "style",
+  "style_counts": {
+    "Baroque": 300,
+    "Cubism": 300,
+    "Impressionism": 300,
+    "Pop_Art": 300,
+    "Ukiyo_e": 300
+  },
+  "style_imbalance_ratio": 1.0,
+  "style_majority_baseline_acc": 0.2,
+  "genre_counts": {
+    "Unknown Genre": 1229,
+    "still_life": 136,
+    "genre_painting": 99,
+    "sketch_and_study": 28,
+    "landscape": 8
+  },
+  "genre_imbalance_ratio": 153.625,
+  "genre_majority_baseline_acc": 0.8193333333333334,
+  "img_width_median": 128.0,
+  "img_height_median": 128.0,
+  "split_sizes": {
+    "train": 1049,
+    "val": 226,
+    "test": 225
+  }
+}

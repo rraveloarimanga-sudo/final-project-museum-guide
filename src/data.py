@@ -1,11 +1,20 @@
 """Data loading, label encoding, stratified splits and PyTorch Dataset.
 
-Everything downstream only relies on `load_dataframe()` returning a DataFrame with:
-    image       : file path (str) OR PIL.Image OR HxWx3 uint8 array
-    style       : str label (e.g. "Impressionism")
-    genre       : str label (e.g. "portrait")
-    title, artist, description : optional text, used by the search component
-Only `load_raw()` needs to change to match the course's data file.
+The dataset is produced by scripts/make_wikiart_subset.py as an ImageFolder tree:
+
+    data/wikiart_style5/
+        Impressionism/s03_r0457.jpg ...
+        Baroque/...
+        metadata.csv   # path,label,label_idx,id,style,genre,artist,shard,row,orig_width,orig_height
+        subset_info.json
+
+`load_raw()` reads that metadata.csv. Everything downstream relies on `load_dataframe()`
+returning a DataFrame with:
+    image   : absolute path to the JPEG (str)
+    style   : str label (e.g. "Impressionism")
+    genre   : str label (e.g. "portrait")
+    artist  : str
+Only `load_raw()` is specific to the subset layout.
 """
 from __future__ import annotations
 
@@ -18,21 +27,22 @@ from PIL import Image
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 
-from src.config import DATA_DIR, SEED, TARGET, TEST_SIZE, VAL_SIZE
+from src.config import SEED, SUBSET_DIR, TARGET, TEST_SIZE, VAL_SIZE
 
 
 def load_raw() -> pd.DataFrame:
-    """Adapter around the provided data-loading file.
-
-    TODO: replace the body with a call to the function in the course's Python file,
-    then rename its columns to the schema documented above.
-    """
-    csv = DATA_DIR / "artworks.csv"
-    if not csv.exists():
+    """Read metadata.csv of the built subset and resolve image paths to absolute files."""
+    meta = SUBSET_DIR / "metadata.csv"
+    if not meta.exists():
         raise FileNotFoundError(
-            f"{csv} not found — plug the course loader into src/data.py::load_raw()"
+            f"{meta} not found. Build the subset first, e.g.\n"
+            f"  python scripts/make_wikiart_subset.py --label style "
+            f"--classes Impressionism Baroque Cubism Ukiyo_e Pop_Art "
+            f"--per-class 300 --size 128 --out {SUBSET_DIR}"
         )
-    return pd.read_csv(csv)
+    df = pd.read_csv(meta)
+    df["image"] = df["path"].map(lambda p: str((SUBSET_DIR / p).resolve()))
+    return df
 
 
 def load_dataframe(min_per_class: int = 20) -> pd.DataFrame:

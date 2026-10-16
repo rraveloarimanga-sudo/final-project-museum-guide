@@ -6,3 +6,5 @@ scikit-learn
 matplotlib
 pillow
 tqdm
+# dataset builder (make_wikiart_subset.py)
+datasets>=3.0
