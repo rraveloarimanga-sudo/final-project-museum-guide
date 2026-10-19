@@ -3,9 +3,11 @@ from __future__ import annotations
 
 from torch import nn
 
+ACTIVATIONS = {"relu": nn.ReLU, "sigmoid": nn.Sigmoid, "tanh": nn.Tanh}
+
 
 class MLP(nn.Module):
-    """input image -> flatten -> [Linear -> ReLU -> (Dropout)] x N -> Linear -> logits."""
+    """input image -> flatten -> [Linear -> activation -> (Dropout)] x N -> Linear -> logits."""
 
     def __init__(
         self,
@@ -13,13 +15,15 @@ class MLP(nn.Module):
         num_classes: int,
         hidden=(512, 256),
         dropout: float = 0.0,
+        activation: str = "relu",
     ):
         super().__init__()
+        act = ACTIVATIONS[activation]
         layers: list[nn.Module] = []
         d = in_features
         for h in hidden:
             layers.append(nn.Linear(d, h))
-            layers.append(nn.ReLU())
+            layers.append(act())
             if dropout > 0:
                 layers.append(nn.Dropout(dropout))
             d = h
