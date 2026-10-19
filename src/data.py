@@ -86,24 +86,38 @@ def open_image(item) -> Image.Image:
 
 
 class ArtworkDataset(Dataset):
-    def __init__(self, images, labels, transform):
+    """Optionally pre-decodes every image once into memory (cache_size x cache_size uint8).
+
+    On CPU this is the difference between re-reading 1500 JPEGs from disk every epoch
+    (very slow, worse from iCloud) and decoding them a single time up front.
+    """
+
+    def __init__(self, images, labels, transform, cache_size: int | None = None):
         self.images = list(images)
         self.labels = torch.as_tensor(labels, dtype=torch.long)
         self.transform = transform
+        self.cache = None
+        if cache_size is not None:
+            from tqdm import tqdm
+            self.cache = [
+                np.asarray(open_image(im).resize((cache_size, cache_size)))
+                for im in tqdm(self.images, desc="caching images", leave=False)
+            ]
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, i):
-        return self.transform(open_image(self.images[i])), self.labels[i]
+        src = self.cache[i] if self.cache is not None else self.images[i]
+        return self.transform(open_image(src)), self.labels[i]
 
 
-def make_datasets(df: pd.DataFrame, transforms: dict) -> tuple[dict, list[str]]:
-    """transforms: {"train": tf, "val": tf, "test": tf}"""
+def make_datasets(df: pd.DataFrame, transforms: dict, cache_size: int | None = None) -> tuple[dict, list[str]]:
+    """transforms: {"train": tf, "val": tf, "test": tf}. cache_size preloads images in memory."""
     y, classes = encode_labels(df)
     splits = split_indices(y)
     datasets = {
-        name: ArtworkDataset(df["image"].iloc[ix], y[ix], transforms[name])
+        name: ArtworkDataset(df["image"].iloc[ix], y[ix], transforms[name], cache_size)
         for name, ix in splits.items()
     }
     return datasets, classes

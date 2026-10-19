@@ -46,7 +46,7 @@ def main():
 
     timings: dict = {}
     with timer("baseline_fit", timings):
-        clf = LogisticRegression(max_iter=2000, C=1.0, multi_class="multinomial")
+        clf = LogisticRegression(max_iter=2000, C=1.0)
         clf.fit(Xs[splits["train"]], y[splits["train"]])
 
     results = {"n_features": int(X.shape[1]), "classes": classes, "timings_s": timings}

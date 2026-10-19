@@ -40,7 +40,7 @@ def main():
     df = load_dataframe()
     transforms = {"train": mlp_transforms(True), "val": mlp_transforms(False),
                   "test": mlp_transforms(False)}
-    datasets, classes = make_datasets(df, transforms)
+    datasets, classes = make_datasets(df, transforms, cache_size=MLP_IMG_SIZE)
     loaders = {k: DataLoader(v, batch_size=BATCH_SIZE, shuffle=(k == "train"),
                              num_workers=NUM_WORKERS) for k, v in datasets.items()}
 
