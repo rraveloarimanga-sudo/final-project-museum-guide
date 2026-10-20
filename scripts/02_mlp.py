@@ -54,7 +54,8 @@ def main():
     timings: dict = {}
     with timer("mlp_train", timings):
         history, _ = fit(model, loaders["train"], loaders["val"], device,
-                         epochs=40, lr=1e-3, weight_decay=0.0, patience=8, log_grad=True)
+                         # lr=1e-4 chosen on the VALIDATION set by the sweep in 03_diagnose.py
+                         epochs=60, lr=1e-4, weight_decay=0.0, patience=10, log_grad=True)
 
     plot_curves(history, FIG_DIR / "mlp_curves.png")
     y_true, y_pred = predict(model, loaders["test"], device)
