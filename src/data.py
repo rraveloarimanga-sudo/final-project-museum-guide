@@ -112,6 +112,27 @@ class ArtworkDataset(Dataset):
         return self.transform(open_image(src)), self.labels[i]
 
 
+def standardise_from_train(datasets: dict) -> tuple[list[float], list[float]]:
+    """Per-channel x <- (x - mean) / std, with mean and std computed on the TRAIN images only.
+
+    Val and test reuse the train statistics: they stand for future visitors, so looking at
+    them (even for a mean) would leak information. Requires datasets built with cache_size.
+    """
+    from torchvision import transforms as T
+
+    train = datasets["train"]
+    if train.cache is None:
+        raise ValueError("standardise_from_train needs datasets built with cache_size")
+    pix = np.stack(train.cache).astype(np.float32) / 255.0   # (N, H, W, 3), same scale as ToTensor
+    mean = pix.mean(axis=(0, 1, 2)).tolist()
+    std = pix.std(axis=(0, 1, 2)).tolist()
+    norm = T.Normalize(mean, std)
+    for ds in datasets.values():
+        ds.transform = T.Compose([ds.transform, norm])
+    print(f"[data] train pixel mean (RGB) {[round(m, 3) for m in mean]} | std {[round(s, 3) for s in std]}")
+    return mean, std
+
+
 def make_datasets(df: pd.DataFrame, transforms: dict, cache_size: int | None = None) -> tuple[dict, list[str]]:
     """transforms: {"train": tf, "val": tf, "test": tf}. cache_size preloads images in memory."""
     y, classes = encode_labels(df)

@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 
 from src.config import BATCH_SIZE, FIG_DIR, MLP_IMG_SIZE, NUM_WORKERS, SEED
-from src.data import load_dataframe, make_datasets
+from src.data import load_dataframe, make_datasets, standardise_from_train
 from src.evaluate import plot_confusion, predict, summary
 from src.mlp import MLP
 from src.transforms import mlp_transforms
@@ -41,6 +41,7 @@ def main():
     transforms = {"train": mlp_transforms(True), "val": mlp_transforms(False),
                   "test": mlp_transforms(False)}
     datasets, classes = make_datasets(df, transforms, cache_size=MLP_IMG_SIZE)
+    pixel_mean, pixel_std = standardise_from_train(datasets)
     loaders = {k: DataLoader(v, batch_size=BATCH_SIZE, shuffle=(k == "train"),
                              num_workers=NUM_WORKERS) for k, v in datasets.items()}
 
@@ -63,6 +64,7 @@ def main():
     metrics = {
         "classes": classes,
         "in_features": in_features,
+        "pixel_standardisation": {"mean": pixel_mean, "std": pixel_std, "fitted_on": "train"},
         "n_params": sum(p.numel() for p in model.parameters()),
         "history": history,
         "test": summary(y_true, y_pred, classes),

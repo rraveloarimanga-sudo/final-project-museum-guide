@@ -22,7 +22,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 from src.config import BATCH_SIZE, FIG_DIR, MLP_IMG_SIZE, NUM_WORKERS, SEED
-from src.data import load_dataframe, make_datasets
+from src.data import load_dataframe, make_datasets, standardise_from_train
 from src.mlp import MLP
 from src.train import run_epoch
 from src.transforms import mlp_transforms
@@ -133,6 +133,7 @@ def main():
     transforms = {"train": mlp_transforms(True), "val": mlp_transforms(False),
                   "test": mlp_transforms(False)}
     datasets, classes = make_datasets(df, transforms, cache_size=MLP_IMG_SIZE)
+    standardise_from_train(datasets)   # same preprocessing as scripts/02_mlp.py
     loaders = {k: DataLoader(v, batch_size=BATCH_SIZE, shuffle=(k == "train"),
                              num_workers=NUM_WORKERS) for k, v in datasets.items()}
 
