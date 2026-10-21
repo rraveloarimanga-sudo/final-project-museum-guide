@@ -6,17 +6,22 @@ Two phases, as in course 7:
 Model selection on VALIDATION only; the test set is opened once, at the very end.
 Run: python scripts/04_resnet.py
 """
-# Importing Python libraries about system and time-related functions
-import sys, time 
-from pathlib import Path
+# ---------------------------------------------------------------------------------------------
+# 1. Python standard libraries
+# ---------------------------------------------------------------------------------------------
+import sys                     # sys: lets us change Python's search path (used just below)
+import time                    # time: precise stopwatch, used at the end to time one prediction
+from pathlib import Path       # Path: handles file paths; used below to locate the project folder
 
-# Importing pytorch libraries
-    ## nn : neural network modules
-    ## DataLoader : for loading datasets
-    ## models : pretrained models
-import torch
-from torch import nn 
-from torch.utils.data import DataLoader
-from torchvision import models
+# Add the project folder (two levels above this file) to the places where Python looks for code,
+# so that "from src.xxx import ..." works when the script is run from anywhere.
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
+# ---------------------------------------------------------------------------------------------
+# 2. Deep-learning libraries
+# ---------------------------------------------------------------------------------------------
+import torch                                # PyTorch: tensors (arrays of numbers) and all the maths
+from torch import nn                        # nn: building blocks of networks (Linear, BatchNorm...)
+from torch.utils.data import DataLoader     # DataLoader: serves the images in batches of 64
+from torchvision import models              # models: catalogue of ready-made architectures (ResNet)
 
