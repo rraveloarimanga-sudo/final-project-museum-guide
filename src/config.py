@@ -13,7 +13,7 @@ SEED = 42
 # The dataset is built by scripts/make_wikiart_subset.py into an ImageFolder tree
 # with a metadata.csv. Point SUBSET_DIR at the folder you built, and set TARGET to
 # the label that subset was built around ("style" or "genre").
-SUBSET_NAME = "wikiart_style5"
+SUBSET_NAME = "wikiart_style5_800"
 SUBSET_DIR = DATA_DIR / SUBSET_NAME
 
 # Which label the guide predicts: "style" or "genre"
