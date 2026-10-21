@@ -6,3 +6,17 @@ Two phases, as in course 7:
 Model selection on VALIDATION only; the test set is opened once, at the very end.
 Run: python scripts/04_resnet.py
 """
+# Importing Python libraries about system and time-related functions
+import sys, time 
+from pathlib import Path
+
+# Importing pytorch libraries
+    ## nn : neural network modules
+    ## DataLoader : for loading datasets
+    ## models : pretrained models
+import torch
+from torch import nn 
+from torch.utils.data import DataLoader
+from torchvision import models
+
+
