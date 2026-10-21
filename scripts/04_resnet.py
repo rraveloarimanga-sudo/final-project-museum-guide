@@ -42,6 +42,24 @@ CACHE_SIZE = 128
 
 
 # ---------------------------------------------------------------------------------------------
+# 4. Helper: keep frozen BatchNorm layers in evaluation mode
+# ---------------------------------------------------------------------------------------------
+def keep_frozen_batchnorm_in_eval(model: nn.Module) -> None:
+    """A frozen BatchNorm must also keep its ImageNet running mean/var: force eval mode on it."""
+    original_train = model.train            # keep PyTorch's original train/eval switch aside
+
+    def train(mode: bool = True):           # our new switch, same signature as the original
+        original_train(mode)                # 1) do exactly what the original switch did
+        for m in model.modules():           # 2) then look at every layer of the network
+            if isinstance(m, nn.BatchNorm2d) and not any(p.requires_grad for p in m.parameters()):
+                m.eval()                    #    a BatchNorm whose weights are all frozen stays in
+                                            #    eval mode: its ImageNet statistics are not updated
+        return model                        # 3) return the model, like the original switch
+
+    model.train = train                     # replace the network's switch by ours
+
+
+# ---------------------------------------------------------------------------------------------
 # 5. Helper: count parameters (all of them, or only the trainable ones)
 # ---------------------------------------------------------------------------------------------
 def count(model, trainable_only=False):
@@ -76,6 +94,7 @@ def main():
     # A new layer starts with random weights and is trainable by default.
     model.fc = nn.Linear(model.fc.in_features, len(classes))
     model = model.to(device)                # move the network to the chosen device (CPU)
+    keep_frozen_batchnorm_in_eval(model)    # protect the frozen BatchNorm statistics
 
     timings: dict = {}                      # notebook for durations
     metrics = {"classes": classes,          # notebook for results: the 5 style names
@@ -100,6 +119,41 @@ def main():
         # pretrained layer4 is adjusted, not destroyed.
         hist_b, _ = fit(model, loaders["train"], loaders["val"], device,
                         epochs=10, lr=1e-4, patience=3)
+
+    # ---- 6.5 Record the training results (validation only, the test is still closed)
+    metrics["history_phaseA"] = hist_a                          # losses/accuracies per epoch, phase A
+    metrics["history_phaseB"] = hist_b                          # same for phase B
+    metrics["best_val_acc_phaseA"] = max(hist_a["val_acc"])    # best validation accuracy, phase A
+    metrics["best_val_acc_phaseB"] = max(hist_b["val_acc"])    # best validation accuracy, phase B
+    metrics["first_train_loss"] = hist_a["train_loss"][0]      # sanity check: close to ln(5) = 1.61
+
+    # ---- 6.6 Test set: opened once, at the very end
+    y_true, y_pred = predict(model, loaders["test"], device)   # true styles / predicted styles
+    metrics["test"] = summary(y_true, y_pred, classes)          # accuracy, recall, precision
+    plot_confusion(y_true, y_pred, classes,                     # save the confusion matrix figure
+                   FIG_DIR / "resnet_confusion_test.png", "ResNet-18 — test")
+
+    # ---- 6.7 Inference speed on CPU, one image at a time (what a kiosk does)
+    model.eval()                            # evaluation mode: no training behaviour
+    x = torch.randn(1, 3, 224, 224)         # fake image: 1 image, 3 colours, 224 x 224 pixels
+                                            # (its content does not change the computing time)
+    with torch.no_grad():                   # no gradients needed to answer -> faster
+        for _ in range(5):
+            model(x)                        # warm-up: the first calls are always slower
+        t0 = time.perf_counter()            # start the stopwatch
+        for _ in range(50):
+            model(x)                        # 50 timed predictions
+    # elapsed seconds / 50 predictions * 1,000 = milliseconds per image
+    timings["inference_ms_per_image"] = (time.perf_counter() - t0) / 50 * 1000
+    metrics["timings_s"] = timings          # store all durations in the results notebook
+
+    # ---- 6.8 Save everything
+    # Trained weights, reusable without retraining (*.pt files are excluded from Git)
+    torch.save(model.state_dict(), OUT_DIR / "resnet18_finetuned.pt")
+    # Print the two key numbers on screen
+    print(f"[resnet] test accuracy = {metrics['test']['accuracy']:.3f} | "
+          f"{timings['inference_ms_per_image']:.1f} ms / image")
+    save_metrics("resnet", metrics)         # write outputs/metrics/resnet.json
 
 
 # Run main() only when the file is launched directly: python scripts/04_resnet.py
