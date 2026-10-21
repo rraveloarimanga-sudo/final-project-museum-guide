@@ -40,6 +40,7 @@ from src.utils import get_device, save_metrics, set_seed, timer        # misc he
 # resnet_transforms enlarges them to 224 x 224, the size ResNet expects.
 CACHE_SIZE = 128
 
+
 # ---------------------------------------------------------------------------------------------
 # 5. Helper: count parameters (all of them, or only the trainable ones)
 # ---------------------------------------------------------------------------------------------
@@ -89,8 +90,18 @@ def main():
         hist_a, _ = fit(model, loaders["train"], loaders["val"], device,
                         epochs=10, lr=1e-3, patience=3)
 
+    # ---- 6.4 Phase B: also unfreeze the last residual block (layer4)
+    for p in model.layer4.parameters():     # every weight of layer4...
+        p.requires_grad = True              # ...accepts corrections again
+    metrics["phaseB_trainable"] = count(model, trainable_only=True)      # layer4 + new head
+    print(f"[B] trainable parameters: {metrics['phaseB_trainable']:,} / {metrics['n_params_total']:,}")
+    with timer("phaseB_train", timings):    # stopwatch around phase B
+        # Continue from the phase A weights, with a 10x smaller step (1e-4) so that the
+        # pretrained layer4 is adjusted, not destroyed.
+        hist_b, _ = fit(model, loaders["train"], loaders["val"], device,
+                        epochs=10, lr=1e-4, patience=3)
+
 
 # Run main() only when the file is launched directly: python scripts/04_resnet.py
 if __name__ == "__main__":
     main()
-
