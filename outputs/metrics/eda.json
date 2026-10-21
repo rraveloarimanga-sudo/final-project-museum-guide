@@ -1,29 +1,35 @@
 {
-  "n_artworks": 1500,
+  "n_artworks": 4000,
   "target": "style",
   "style_counts": {
-    "Baroque": 300,
-    "Cubism": 300,
-    "Impressionism": 300,
-    "Pop_Art": 300,
-    "Ukiyo_e": 300
+    "Baroque": 800,
+    "Cubism": 800,
+    "Impressionism": 800,
+    "Pop_Art": 800,
+    "Ukiyo_e": 800
   },
   "style_imbalance_ratio": 1.0,
   "style_majority_baseline_acc": 0.2,
   "genre_counts": {
-    "Unknown Genre": 1229,
-    "still_life": 136,
-    "genre_painting": 99,
-    "sketch_and_study": 28,
-    "landscape": 8
+    "Unknown Genre": 2547,
+    "landscape": 525,
+    "genre_painting": 342,
+    "still_life": 299,
+    "portrait": 170,
+    "sketch_and_study": 61,
+    "nude_painting": 23,
+    "cityscape": 17,
+    "abstract_painting": 8,
+    "illustration": 5,
+    "religious_painting": 3
   },
-  "genre_imbalance_ratio": 153.625,
-  "genre_majority_baseline_acc": 0.8193333333333334,
+  "genre_imbalance_ratio": 849.0,
+  "genre_majority_baseline_acc": 0.63675,
   "img_width_median": 128.0,
   "img_height_median": 128.0,
   "split_sizes": {
-    "train": 1049,
-    "val": 226,
-    "test": 225
+    "train": 2800,
+    "val": 600,
+    "test": 600
   }
 }
