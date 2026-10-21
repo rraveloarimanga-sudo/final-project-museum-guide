@@ -1,50 +1,50 @@
 {
   "learning_rate": {
     "0.1": {
-      "final_train_acc": 0.1982840800762631,
-      "best_val_acc": 0.24336283185840707,
+      "final_train_acc": 0.17892857142857144,
+      "best_val_acc": 0.2,
       "diverged": false
     },
     "0.01": {
-      "final_train_acc": 0.21544327931363202,
-      "best_val_acc": 0.23893805309734514,
+      "final_train_acc": 0.2092857142857143,
+      "best_val_acc": 0.24833333333333332,
       "diverged": false
     },
     "0.001": {
-      "final_train_acc": 0.9561487130600572,
-      "best_val_acc": 0.41150442477876104,
+      "final_train_acc": 0.9053571428571429,
+      "best_val_acc": 0.49166666666666664,
       "diverged": false
     },
     "0.0001": {
-      "final_train_acc": 0.9752144899904671,
-      "best_val_acc": 0.47345132743362833,
+      "final_train_acc": 0.9535714285714286,
+      "best_val_acc": 0.5183333333333333,
       "diverged": false
     }
   },
   "activation_gradients": {
     "relu": {
-      "best_val_acc": 0.4336283185840708,
-      "mean_grad_norm": 3.6506683813088,
-      "final_grad_norm": 3.729241668721215
+      "best_val_acc": 0.505,
+      "mean_grad_norm": 2.875766931631321,
+      "final_grad_norm": 2.992016269759704
     },
     "sigmoid": {
-      "best_val_acc": 0.34513274336283184,
-      "mean_grad_norm": 0.6460738579767735,
-      "final_grad_norm": 0.955274529998295
+      "best_val_acc": 0.41,
+      "mean_grad_norm": 0.6953959586689287,
+      "final_grad_norm": 0.9490366812528319
     }
   },
   "overfitting": {
     "no_reg": {
-      "final_train_acc": 0.9914204003813155,
-      "final_val_acc": 0.3938053097345133,
-      "best_val_acc": 0.4469026548672566,
-      "train_val_gap": 0.5976150906468023
+      "final_train_acc": 0.9725,
+      "final_val_acc": 0.495,
+      "best_val_acc": 0.5183333333333333,
+      "train_val_gap": 0.47750000000000004
     },
     "with_reg": {
-      "final_train_acc": 0.544327931363203,
-      "final_val_acc": 0.415929203539823,
-      "best_val_acc": 0.4424778761061947,
-      "train_val_gap": 0.12839872782338002
+      "final_train_acc": 0.4185714285714286,
+      "final_val_acc": 0.4533333333333333,
+      "best_val_acc": 0.47333333333333333,
+      "train_val_gap": -0.034761904761904716
     }
   }
 }
