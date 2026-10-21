@@ -1,0 +1,20 @@
+{
+  "n_artworks": 18,
+  "n_questions": 14,
+  "tfidf": {
+    "top1": 0.14285714285714285,
+    "top3": 0.14285714285714285,
+    "vocabulary_size": 146,
+    "total_time_s": 0.010532200045417994,
+    "questions_with_no_shared_word": 8
+  },
+  "embeddings": {
+    "top1": 0.7142857142857143,
+    "top3": 0.9285714285714286,
+    "dim": 384,
+    "load_time_s": 2.845223000040278,
+    "index_time_s": 0.30302300001494586,
+    "ms_per_question": 2.7753785709917014,
+    "n_params": 22713216
+  }
+}
